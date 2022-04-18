@@ -1,0 +1,46 @@
+definitions:
+  env_unity: &env_unity
+    groups:
+    # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
+      - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
+    vars:
+      UNITY_VERSION: 2021.3.0f1
+      UNITY_VERSION_CHANGESET: 6eacc8284459
+      UNITY_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
+workflows:
+  mac-pro-unity-2021:
+    name: Mac Unity 2021
+    max_build_duration: 120
+    environment:
+      <<: *env_unity
+    scripts:
+        - name: Install Unity
+          script: | 
+            /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install --version ${UNITY_VERSION} --changeset ${UNITY_VERSION_CHANGESET} 
+        - &activate_unity_license
+          name: Activate License
+          script: ${UNITY_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
+        - &build_app
+          name: Build
+          script: ${UNITY_BIN} -batchmode -quit -logFile -projectPath . -executeMethod BuildScript.BuildMac -nographics
+    artifacts:
+        - &app build/*.app
+    publishing:
+      scripts:
+        - &deactivate_unity_license
+          name: Deactivate License
+          script: ${UNITY_BIN} -batchmode -quit -returnlicense -nographics
+  mac-mini-m1-unity-2021:
+    name: Mac (M1) Unity 2021
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+    environment:
+      <<: *env_unity
+    scripts:
+        - *activate_unity_license
+        - *build_app
+    artifacts:
+        - *app
+    publishing:
+      scripts:
+        - *deactivate_unity_license
