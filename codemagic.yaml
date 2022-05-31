@@ -4,8 +4,8 @@ definitions:
     # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
       - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
     vars:
-      UNITY_VERSION: 2021.3.0f1
-      UNITY_VERSION_CHANGESET: 6eacc8284459
+      UNITY_VERSION: 2021.3.1f1
+      UNITY_VERSION_CHANGESET: 3b70a0754835
       UNITY_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
 workflows:
   mac-pro-unity-2021:
