@@ -6,6 +6,7 @@ definitions:
     vars:
       UNITY_VERSION: 2021.3.1f1
       UNITY_VERSION_CHANGESET: 3b70a0754835
+      UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
       UNITY_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
 workflows:
   mac-pro-unity-2021:
@@ -16,7 +17,7 @@ workflows:
     scripts:
         - &activate_unity_license
           name: Activate License
-          script: ${UNITY_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
+          script: ${UNITY_OLD_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
         - name: Install Unity
           script: | 
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install --version ${UNITY_VERSION} --changeset ${UNITY_VERSION_CHANGESET} 
