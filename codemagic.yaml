@@ -30,7 +30,7 @@ workflows:
       scripts:
         - &deactivate_unity_license
           name: Deactivate License
-          script: ${UNITY_OLD_BIN} -batchmode -quit -returnlicense -nographics
+          script: ${UNITY_OLD_BIN} -batchmode -quit -returnlicense -nographics -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
   mac-mini-m1-unity-2021:
     name: Mac (M1) Unity 2021
     max_build_duration: 120
