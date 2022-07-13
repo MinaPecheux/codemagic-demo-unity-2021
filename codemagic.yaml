@@ -1,19 +1,15 @@
-definitions:
-  env_unity: &env_unity
-    groups:
-    # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
-      - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
-    vars:
-      UNITY_VERSION: 2021.3.5f1f1
-      UNITY_VERSION_CHANGESET: 3b70a0754835
-      UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
 workflows:
   mac-pro-unity-2021:
     name: Mac Unity 2021
     max_build_duration: 120
     environment:
-      <<: *env_unity
+      groups:
+      # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
+        - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
       vars:
+        UNITY_VERSION: 2021.3.5f1f1
+        UNITY_VERSION_CHANGESET: 3b70a0754835
+        UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
         UNITY_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
     scripts:
         - &activate_unity_license
@@ -37,9 +33,11 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m1
     environment:
-      <<: *env_unity
+      groups:
+        - unity
       vars:
-        UNITY_BIN: $UNITY_HOME/Contents/MacOS/Unity
+        UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
+        UNITY_BIN: $UNITY_OLD_BIN
     scripts:
         - *activate_unity_license
         - *build_app
