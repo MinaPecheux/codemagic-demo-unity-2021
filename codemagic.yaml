@@ -1,48 +1,49 @@
+definitions:
+  environment: &unity_env
+    groups:
+      # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
+      - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
+    vars:
+      UNITY_VERSION: 2021.3.0f1
+      UNITY_VERSION_CHANGESET: 6eacc8284459
+      UNITY_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
+      UNITY_VERSIONED_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
 workflows:
   mac-pro-unity-2021:
     name: Mac Unity 2021
     max_build_duration: 120
     environment:
-      groups:
-      # Add the group environment variables in Codemagic UI (either in Application/Team variables) - https://docs.codemagic.io/variables/environment-variable-groups/
-        - unity # <-- (Includes UNITY_VERSION, UNITY_SERIAL, UNITY_USERNAME and UNITY_PASSWORD)
-      vars:
-        UNITY_VERSION: 2021.3.5f1f1
-        UNITY_VERSION_CHANGESET: 3b70a0754835
-        UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
-        UNITY_BIN: /Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity
+      <<: *unity_env
     scripts:
         - &activate_unity_license
           name: Activate License
-          script: ${UNITY_OLD_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
-        - name: Install Unity
+          script: ${UNITY_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
+        - &install_unity
+          name: Install Unity
           script: | 
             /Applications/Unity\ Hub.app/Contents/MacOS/Unity\ Hub -- --headless install --version ${UNITY_VERSION} --changeset ${UNITY_VERSION_CHANGESET} 
         - &build_app
           name: Build
-          script: ${UNITY_BIN} -batchmode -quit -logFile -projectPath . -executeMethod BuildScript.BuildMac -nographics
+          script: ${UNITY_VERSIONED_BIN} -batchmode -quit -logFile -projectPath . -executeMethod BuildScript.BuildMac -nographics
     artifacts:
         - &app build/*.app
     publishing:
       scripts:
-        - &deactivate_unity_license
-          name: Deactivate License
-          script: ${UNITY_OLD_BIN} -batchmode -quit -returnlicense -nographics -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
+        - name: Deactivate License
+          script: ${UNITY_BIN} -batchmode -quit -returnlicense -nographics -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
   mac-mini-m1-unity-2021:
     name: Mac (M1) Unity 2021
     max_build_duration: 120
     instance_type: mac_mini_m1
     environment:
-      groups:
-        - unity
-      vars:
-        UNITY_OLD_BIN: ${UNITY_HOME}/Contents/MacOS/Unity
-        UNITY_BIN: $UNITY_OLD_BIN
+      <<: *unity_env
     scripts:
         - *activate_unity_license
+        - *install_unity
         - *build_app
     artifacts:
         - *app
     publishing:
       scripts:
-        - *deactivate_unity_license
+        - name: Deactivate License
+          script: /Applications/Unity\ Hub.app/Contents/Frameworks/UnityLicensingClient_V1.app/Contents/MacOS/Unity.Licensing.Client --return-ulf --username ${UNITY_USERNAME?} --password ${UNITY_PASSWORD?}
