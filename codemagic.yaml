@@ -38,9 +38,10 @@ workflows:
     environment:
       <<: *unity_env
     scripts:
-        - *activate_unity_license
-        - *install_unity
-        - *build_app
+        - name: Activate License
+          script: ${UNITY_BIN} -batchmode -quit -logFile -serial ${UNITY_SERIAL?} -username ${UNITY_USERNAME?} -password ${UNITY_PASSWORD?}
+        - name: Build
+          script: ${UNITY_BIN} -batchmode -quit -logFile -projectPath . -executeMethod BuildScript.BuildMac -nographics
     artifacts:
         - *app
     publishing:
